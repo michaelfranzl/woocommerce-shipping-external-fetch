@@ -16,6 +16,18 @@ other than 200 (i.e. when it experiences a server error), this plugin offers
 free shipping to the customer, since technical problems are the 'fault' of the
 store owner and should not prevent a customer from completing an order.
 
+This plugin supports WooCommerce shipping zones. To add the plugin to an existing shipping zone:
+
+1. Go to WooCommerce -> Settings -> Shipping
+2. Click on "Manage shipping methods" below a Zone
+3. Click "Add shipping method" button
+4. Select "External Fetch" and click "Add shipping method" button
+5. Configure the Plugin by clicking on "Edit"
+6. Customize "Method title" and "Method description" and set the "JSON API Endpoint" to, for example `http://localhost:4040/calculate`
+
+At this point you can add a product to the cart, set up a simple webserver listening at port 4040 on the same machine, and receive/send JSON as shown in the section "Examples" further below.
+
+
 This plugin is for DEVELOPERS only and will likely remain in an ALPHA state.
 
 
