@@ -40,9 +40,9 @@ class WC_Shipping_External_Fetch extends WC_Shipping_Method {
 	public function action_after_shipping_rate($rate, $index) {
 		$rate_id = $rate->id;
 		$rates = $this->last_response['rates'];
-		foreach( $rates as $rate ) {
-			if ( $rate_id == $rate['id'] ) { // This rate ID belongs to this instance
-				echo "<div class='shipping_rate_description'>" . $rate['description'] . "</div>";
+		foreach( $rates as $r ) {
+			if ( $rate_id == $r['id'] ) { // This rate ID belongs to this instance
+				echo "<div class='shipping_rate_description'>" . $r['description'] . "</div>";
 			}
 		}
 	}
@@ -132,66 +132,85 @@ class WC_Shipping_External_Fetch extends WC_Shipping_Method {
 				'type'        => 'text',
 				'desc_tip'    => true,
 				'description' => __( 'Protocol, Hostname, Port and URL of API endpoint', 'woocommerce-external-fetch-shipping' ),
-				'default'     => __( 'http://localhost:4040/calculate', 'woocommerce-external-fetch-shipping' )
-			)
+				'placeholder'     => __( 'http://localhost:4040/calculate', 'woocommerce-external-fetch-shipping' )
+			),
+			'fallback_cost' => array(
+				'title'       => __( 'Fallback cost', 'woocommerce-external-fetch-shipping' ),
+				'type'        => 'text',
+				'desc_tip'    => true,
+				'default'     => '0',
+				'description' => __( 'Use this shipping cost when service unavailable', 'woocommerce-external-fetch-shipping' ),
+			),
+			'debug' => array(
+				'title'       => __( 'Debug', 'woocommerce-external-fetch-shipping' ),
+				'label'       => '(Prints debug messages on checkout page)',
+				'type'        => 'checkbox',
+				'default'     => 'no'
+			),
 		);
 	}
 	
 	
 	public function calculate_shipping( $package = array() ) {
-		// prepare a JSON object to be sent to shipping calculation API
-		foreach ( $package['contents'] as $item_id => $values ) {
-			$_product = $values['data'];
-			$class_slug = $_product->get_shipping_class();
-			$package['contents'][ $item_id ]['shipping_class_slug'] = $class_slug;
-			
-			// collect category slugs
-			$catids = $_product->get_category_ids();
-			$catslugs = array();
-			foreach ( $catids as $catid ) {
-				$cat = get_category( $catid );
-				array_push( $catslugs, $cat->slug );
-			}
-			
-			// collect product attributes
-			$attrs = array();
-			
-			//mylog($_product->get_attributes());
-			$attributes = $_product->get_attributes();
-			//
-			foreach ( $_product->get_attributes() as $att ) {
-				if ( is_object($att) ) { // of class WC_Product_Attribute
-					$terms = $att->get_terms();
-					if ( $terms ) {
-						// This is a woocommerce predefined product attribute (Menu: WooCommerce -> Attributes)
-						$termvalues = array();
-						foreach( $terms as $term ) {
-							array_push( $termvalues, $term->name );
-						}
-						$attrs[ $att->get_name() ] = $termvalues;
-					} else {
-						// This is a woocommerce custom product attribute
-						$attrs[ $att->get_name() ] = $att->get_options();
-					}
-				} else {
-					// for variations, attributes are strings
-					array_push($attrs, $att);
-				}
-			}
-			
-			$package['contents'][ $item_id ]['categories'] = $catslugs;
-			$package['contents'][ $item_id ]['attributes'] = $attrs;
-			$package['contents'][ $item_id ]['dimensions'] = $_product->get_dimensions(false);
-			$package['contents'][ $item_id ]['purchase_note'] = $_product->get_purchase_note();
-			$package['contents'][ $item_id ]['weight'] = $_product->get_weight();
-			$package['contents'][ $item_id ]['downloadable'] = $_product->get_downloadable();
-			$package['contents'][ $item_id ]['virtual'] = $_product->get_virtual();
-		}
-		
-		$package['site']['locale'] = get_locale();
-		$package['shipping_method']['instance_id'] = $this->instance_id;
-		
 		try {
+			//throw new Exception( 'blah' ); // to test catch block
+			
+			// prepare a JSON object to be sent to shipping calculation API
+			foreach ( $package['contents'] as $item_id => $values ) {
+				$_product = $values['data'];
+				$class_slug = $_product->get_shipping_class();
+				$package['contents'][ $item_id ]['shipping_class_slug'] = $class_slug;
+				
+				// collect category slugs
+				$catids = $_product->get_category_ids();
+				$catslugs = array();
+				foreach ( $catids as $catid ) {
+					$cat = get_category( $catid );
+					array_push( $catslugs, $cat->slug );
+				}
+				
+				// collect product attributes
+				$attrs = array();
+				
+				//mylog($_product->get_attributes());
+				$attributes = $_product->get_attributes();
+				//
+				foreach ( $_product->get_attributes() as $att ) {
+					if ( is_object($att) ) { // of class WC_Product_Attribute
+						$terms = $att->get_terms();
+						if ( $terms ) {
+							// This is a woocommerce predefined product attribute (Menu: WooCommerce -> Attributes)
+							$termvalues = array();
+							foreach( $terms as $term ) {
+								array_push( $termvalues, $term->name );
+							}
+							$attrs[ $att->get_name() ] = $termvalues;
+						} else {
+							// This is a woocommerce custom product attribute
+							$attrs[ $att->get_name() ] = $att->get_options();
+						}
+					} else {
+						// for variations, attributes are strings
+						array_push($attrs, $att);
+					}
+				}
+				
+				$package['contents'][ $item_id ]['categories'] = $catslugs;
+				$package['contents'][ $item_id ]['attributes'] = $attrs;
+				$package['contents'][ $item_id ]['name'] = $_product->name;
+				$package['contents'][ $item_id ]['sku'] = $_product->sku;
+				$package['contents'][ $item_id ]['dimensions'] = $_product->get_dimensions(false);
+				$package['contents'][ $item_id ]['purchase_note'] = $_product->get_purchase_note();
+				$package['contents'][ $item_id ]['weight'] = $_product->get_weight();
+				$package['contents'][ $item_id ]['downloadable'] = $_product->get_downloadable();
+				$package['contents'][ $item_id ]['virtual'] = $_product->get_virtual();
+			}
+			
+			$package['site']['locale'] = get_locale();
+			$package['shipping_method']['instance_id'] = $this->instance_id;
+			$package['debug'] = $this->get_option('debug');
+		
+
 		  $endpoint = $this->get_option( 'endpoint' );
 			$ch = curl_init( $endpoint );
 			curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
@@ -261,10 +280,11 @@ class WC_Shipping_External_Fetch extends WC_Shipping_Method {
 	}
 	
 	public function add_free_shipping( $reason = '', $package = array() ) {
+		$fallback_cost = $this->get_option('fallback_cost');
 		$rate = array(
 			'id' => $this->id,
-			'label' => __( 'Free shipping', 'woocommerce' ) . " (Reason: " . $reason . ")",
-			'cost' => 0
+			'label' => "E" . $reason,
+			'cost' => $fallback_cost
 		);
 		$this->add_rate( $rate, $package );
 	}
