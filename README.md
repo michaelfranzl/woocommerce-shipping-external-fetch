@@ -31,7 +31,7 @@ To add the plugin to an existing shipping zone:
 At this point you can add a product to the cart, set up a simple webserver listening at port 4040 on the same machine, and receive/send JSON as shown in the section "Examples" further below.
 
 
-This plugin is for DEVELOPERS only and will likely remain in an ALPHA state.
+This plugin is for DEVELOPERS only.
 
 
 ## License
@@ -129,7 +129,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
       },
       "shipping_method": {
           "instance_id": "20"
-      }
+      },
+      "debug": "no"
     }
 
     
