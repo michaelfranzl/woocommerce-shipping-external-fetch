@@ -143,7 +143,7 @@ class WC_Shipping_External_Fetch extends WC_Shipping_Method {
 			),
 			'debug' => array(
 				'title'       => __( 'Debug', 'woocommerce-external-fetch-shipping' ),
-				'label'       => '(Prints debug messages on checkout page)',
+				'label'       => ' ',
 				'type'        => 'checkbox',
 				'default'     => 'no'
 			),

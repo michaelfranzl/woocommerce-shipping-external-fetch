@@ -13,9 +13,8 @@ reponse is shown below.
 
 When the webservice is not reachable, not responsive, or returns HTTP status codes
 other than 200 (i.e. when it experiences a server error), this plugin offers
-free shipping to the customer, since technical problems are the 'fault' of the
-store owner and should not prevent a customer from completing an order. A setting
-to configure this behavior is not included, but it would be easy to add.
+shipping for a configurable fallback cost,
+since technical problems should not prevent a customer from completing an order.
 
 This plugin supports WooCommerce shipping zones. So, in theory you could have
 different web services dedicated to different shipping zones.

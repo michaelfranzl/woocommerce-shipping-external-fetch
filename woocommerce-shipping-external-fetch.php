@@ -3,7 +3,7 @@
  * Plugin Name: WooCommerce Shipping External Fetch
  * Plugin URI: https://github.com/michaelfranzl/woocommerce-shipping-external-fetch
  * Description: Fetch shipping rates from an external web service using JSON
- * Version: 0.0.1
+ * Version: 0.1.0
  * Author: Michael Franzl
  * Author URI: https://michaelfranzl.com
  * Requires at least: 4.0
@@ -24,7 +24,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 	class WC_External_Fetch_Shipping {
 	
 		public function __construct() {
-			define( 'EXTERNAL_FETCH_SHIPPING_VERSION', '0.0.1' );
+			define( 'EXTERNAL_FETCH_SHIPPING_VERSION', '0.1.0' );
 			define( 'EXTERNAL_FETCH_SHIPPING_DEBUG', defined( 'WP_DEBUG' ) && 'true' == WP_DEBUG && ( ! defined( 'WP_DEBUG_DISPLAY' ) || 'true' == WP_DEBUG_DISPLAY ) );
 			add_action( 'plugins_loaded', array( $this, 'init' ) );
 		}
