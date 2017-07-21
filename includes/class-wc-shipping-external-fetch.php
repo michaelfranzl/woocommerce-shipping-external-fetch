@@ -34,6 +34,7 @@ class WC_Shipping_External_Fetch extends WC_Shipping_Method {
 		add_filter( 'woocommerce_cart_no_shipping_available_html', array( $this, 'filter_cart_no_shipping_available_html' ) );
 		add_action( 'woocommerce_after_shipping_rate', array($this, 'action_after_shipping_rate'));
 		add_action( 'woocommerce_proceed_to_checkout', array( $this, 'action_add_text_before_proceed_to_checkout' ));
+		add_action( 'woocommerce_proceed_to_checkout', array( $this, 'maybe_clear_wc_shipping_rates_cache' ));
 	}
 	
 	
@@ -43,6 +44,16 @@ class WC_Shipping_External_Fetch extends WC_Shipping_Method {
 		foreach( $rates as $r ) {
 			if ( $rate_id == $r['id'] ) { // This rate ID belongs to this instance
 				echo "<div class='shipping_rate_description'>" . $r['description'] . "</div>";
+			}
+		}
+	}
+	
+	public function maybe_clear_wc_shipping_rates_cache() {
+		if ( $this->get_option('clear_wc_shipping_cache') == 'yes' ) {
+			$packages = WC()->cart->get_shipping_packages();
+			foreach ($packages as $key => $value) {
+				$shipping_session = "shipping_for_package_$key";
+				unset(WC()->session->$shipping_session);
 			}
 		}
 	}
@@ -145,7 +156,15 @@ class WC_Shipping_External_Fetch extends WC_Shipping_Method {
 				'title'       => __( 'Debug', 'woocommerce-external-fetch-shipping' ),
 				'label'       => ' ',
 				'type'        => 'checkbox',
-				'default'     => 'no'
+				'default'     => 'no',
+				'description' => __( 'Set a "debug": "yes" flag in the JSON sent to the service.', 'woocommerce-external-fetch-shipping' ),
+			),
+			'clear_wc_shipping_cache' => array(
+				'title'       => __( 'Disable Shipping Cache', 'woocommerce-external-fetch-shipping' ),
+				'label'       => ' ',
+				'type'        => 'checkbox',
+				'default'     => 'no',
+				'description' => __( "Clear WooCommerce's session-based shipping calculation cache at every load.", 'woocommerce-external-fetch-shipping' ),
 			),
 		);
 	}

@@ -58,6 +58,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 			include_once( 'includes/class-wc-shipping-external-fetch.php' );
 		}
 	}
+		
 
 	new WC_External_Fetch_Shipping();
 }
