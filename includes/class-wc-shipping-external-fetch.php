@@ -31,8 +31,8 @@ class WC_Shipping_External_Fetch extends WC_Shipping_Method {
 		$this->description        = $this->get_option( 'description' );
 		$this->method_description = $this->description;
 		
-		add_filter( 'woocommerce_cart_no_shipping_available_html', array( $this, 'filter_cart_no_shipping_available_html' ) );
-		add_action( 'woocommerce_after_shipping_rate', array($this, 'action_after_shipping_rate'));
+		add_filter( 'woocommerce_cart_no_shipping_available_html', array( $this, 'filter_cart_no_shipping_available_html' ), 10, 1 );
+		add_action( 'woocommerce_after_shipping_rate', array($this, 'action_after_shipping_rate'), 10, 2);
 		add_action( 'woocommerce_proceed_to_checkout', array( $this, 'action_add_text_before_proceed_to_checkout' ));
 		add_action( 'woocommerce_proceed_to_checkout', array( $this, 'maybe_clear_wc_shipping_rates_cache' ));
 	}
